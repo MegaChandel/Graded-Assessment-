@@ -1,4 +1,3 @@
-// Aditya-Dey-Graded-Assignment-1
 // Graded Assessment: Working with JSON Data
 // You are tasked with implementing a product management system. 
 //The system will use JSON data for storing information about products. 
@@ -13,16 +12,16 @@ const productData = [
     },
     {
         id: 2,
-        name: "Pendrive",
+        name: "Ball",
         category: "Toys",
-        price: 12.9,
+        price: 40,
         available: true
     },
     {
         id: 3,
         name: "Laptop",
         category: "Electronics",
-        price: 69.9,
+        price: 100,
         available: false
     }
 ];
