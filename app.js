@@ -1,82 +1,80 @@
-function parseProductData(jsonData) {
-    return JSON.parse(jsonData);
-  }
-  
-  function addProduct(products, newProduct) {
-    
-    if (!newProduct.id || !newProduct.name || !newProduct.category || !newProduct.price || typeof newProduct.available !== 'boolean') {
-      return 'Invalid product data';
-    }
-  
-    
-    products.push(newProduct);
-    return products;
-  }
-  
-  function updateProductPrice(products, productId, newPrice) {
-    
-    const productIndex = products.findIndex(product => product.id === productId);
-    if (productIndex === -1) {
-      return 'Product not found';
-    }
-  
-    
-    products[productIndex].price = newPrice;
-    return products;
-  }
-  
-  function getAvailableProducts(products) {
-    return products.filter(product => product.available);
-  }
-  
-  function getProductsByCategory(products, category) {
-    return products.filter(product => product.category === category);
-  }
-  
-  
-  const productData = `[
+// Aditya-Dey-Graded-Assignment-1
+// Graded Assessment: Working with JSON Data
+// You are tasked with implementing a product management system. 
+//The system will use JSON data for storing information about products. 
+
+const productData = [
     {
-      "id": "prod-001",
-      "name": "iPhone 12",
-      "category": "Electronics",
-      "price": 799.99,
-      "available": true
+        id: 1,
+        name: "Smartphone",
+        category: "Electronics",
+        price: 10,
+        available: true
     },
     {
-      "id": "prod-002",
-      "name": "Nike Air Force 1",
-      "category": "Apparel",
-      "price": 89.99,
-      "available": true
+        id: 2,
+        name: "Pendrive",
+        category: "Toys",
+        price: 12.9,
+        available: true
     },
     {
-      "id": "prod-003",
-      "name": "Macbook Pro",
-      "category": "Electronics",
-      "price": 1499.99,
-      "available": false
+        id: 3,
+        name: "Laptop",
+        category: "Electronics",
+        price: 69.9,
+        available: false
     }
-  ]`;
-  
-  const products = parseProductData(productData);
-  console.log(products);
-  
-  const newProduct = {
-    id: "prod-004",
-    name: "Samsung Galaxy S21",
-    category: "Electronics",
-    price: 999.99,
+];
+
+// read and Parse the JSON data
+function parseProductData(data) {
+    return data;
+}
+
+const products = parseProductData(productData);
+
+// Add a new product
+function addProduct(products, product) {
+    return [...products, product];
+}
+
+const newProduct = {
+    id: 4,
+    name: "Six of Crows",
+    category: "Books",
+    price: 19.5,
     available: true
-  };
-  
-  const updatedProducts = addProduct(products, newProduct);
-  console.log(updatedProducts);
-  
-  const updatedPriceProducts = updateProductPrice(updatedProducts, "prod-001", 849.99);
-  console.log(updatedPriceProducts);
-  
-  const availableProducts = getAvailableProducts(updatedPriceProducts);
-  console.log(availableProducts);
-  
-  const electronicsProducts = getProductsByCategory(updatedPriceProducts, "Electronics");
-  console.log(electronicsProducts);
+};
+
+const updatedProducts = addProduct(products, newProduct);
+
+// Update the price of a product
+function updateProductPrice(products, productId, newPrice) {
+    return products.map((product) =>
+        product.id === productId ? { ...product, price: newPrice } : product
+    );
+}
+
+const updatedProductsWithPrice = updateProductPrice(updatedProducts, 2, 34.9);
+
+//Filter products based on availability
+function filterAvailableProducts(products) {
+    return products.filter((product) => product.available);
+}
+
+const availableProducts = filterAvailableProducts(updatedProductsWithPrice);
+
+// Filter products by category
+function filterProductsByCategory(products, category) {
+    return products.filter((product) => product.category === category);
+}
+
+const electronicsProducts = filterProductsByCategory(updatedProductsWithPrice, "Electronics");
+
+// results
+console.log("Products:", products);
+console.log("All Products ; along with new Product (4):", updatedProducts);
+console.log("All Products ; along with updated Price of product id :2:", updatedProductsWithPrice);
+console.log("Available Products:", availableProducts);
+console.log("Electronics Products:", electronicsProducts);
