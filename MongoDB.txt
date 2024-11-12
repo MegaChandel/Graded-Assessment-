@@ -1,0 +1,199 @@
+db.createCollection("users");
+db.createCollection("purchases");
+
+db.users.insertMany([
+    {
+        name: "Aman",
+        email: "aman123@mail.com",
+        address: { street: "Delhi", city: "GTB Nagar", zipcode: "12345" },
+        phone: "7894561230",
+        registration_date: new Date("2023-07-15T10:00:00Z")
+    },
+    {
+        name: "Bikash",
+        email: "bikash56@mail.com",
+        address: { street: "Mizorm", city: "Rie", zipcode: "54321" },
+        phone: "9876543210",
+        registration_date: new Date("2023-08-20T12:00:00Z")
+    },
+    {
+        name: "Shivam",
+        email: "shivam789@mail.com",
+        address: { street: "Armed Veng", city: "Raipur", zipcode: "67890" },
+        phone: "6549871234",
+        registration_date: new Date("2023-09-05T09:30:00Z")
+    },
+    {
+        name: "Anmol",
+        email: "anmol67@mail.com",
+        address: { street: "Rajendrachowk", city: "Jaipur", zipcode: "45678" },
+        phone: "3216549870",
+        registration_date: new Date("2023-06-18T14:00:00Z")
+    },
+    {
+        name: "Guriya",
+        email: "guriya01@mail.com",
+        address: { street: "Khatla", city: "kolkatae", zipcode: "78901" },
+        phone: "8527419630",
+        registration_date: new Date("2023-10-01T08:00:00Z")
+    }
+]);
+
+db.purchases.insertMany([
+    {
+        order_id: "ORD001",
+        user_id: ObjectId("64b8c2e7f70c9c224bc61234"),
+        order_date: new Date("2023-07-20T10:00:00Z"),
+        status: "delivered",
+        items: [
+            { product_name: "Book", quantity: 2, price: 500 },
+            { product_name: "Pen", quantity: 5, price: 50 }
+        ],
+        total_value: 1050
+    },
+    {
+        order_id: "ORD002",
+        user_id: ObjectId("64b8c2e7f70c9c224bc61235"),
+        order_date: new Date("2023-08-25T12:00:00Z"),
+        status: "pending",
+        items: [
+            { product_name: "Notebook", quantity: 1, price: 300 },
+            { product_name: "Eraser", quantity: 3, price: 20 }
+        ],
+        total_value: 360
+    },
+    {
+        order_id: "ORD003",
+        user_id: ObjectId("64b8c2e7f70c9c224bc61236"),
+        order_date: new Date("2023-09-10T15:30:00Z"),
+        status: "shipped",
+        items: [
+            { product_name: "Bag", quantity: 1, price: 1000 },
+            { product_name: "Water Bottle", quantity: 2, price: 200 }
+        ],
+        total_value: 1400
+    },
+    {
+        order_id: "ORD004",
+        user_id: ObjectId("64b8c2e7f70c9c224bc61237"),
+        order_date: new Date("2023-06-25T09:00:00Z"),
+        status: "delivered",
+        items: [
+            { product_name: "Shoes", quantity: 1, price: 3000 },
+            { product_name: "Socks", quantity: 3, price: 150 }
+        ],
+        total_value: 3450
+    },
+    {
+        order_id: "ORD005",
+        user_id: ObjectId("64b8c2e7f70c9c224bc61238"),
+        order_date: new Date("2023-10-05T13:00:00Z"),
+        status: "cancelled",
+        items: [
+            { product_name: "T-shirt", quantity: 2, price: 700 },
+            { product_name: "Jeans", quantity: 1, price: 1500 }
+        ],
+        total_value: 2900
+    }
+]);
+
+const alice = db.users.findOne({ name: "Aman" });
+
+const amanOrders = db.purchases.find({ user_id: aman._id }).toArray();
+printjson(amanOrders);
+
+const specificOrder = db.purchases.findOne({ order_id: "ORD003" });
+
+const userDetails = db.users.findOne({ _id: specificOrder.user_id });
+printjson(userDetails);
+
+db.purchases.updateOne(
+    { order_id: "ORD003" },
+    { $set: { status: "delivered" } }
+);
+
+db.purchases.deleteOne({ order_id: "ORD002" });
+
+db.purchases.aggregate([
+    {
+        $group: {
+            _id: "$user_id",
+            total_spent: { $sum: "$total_value" }
+        }
+    },
+    {
+        $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "user_info"
+        }
+    },
+    { $unwind: "$user_info" },
+    { $project: { user_name: "$user_info.name", total_spent: 1 } }
+]);
+
+db.purchases.aggregate([
+    {
+        $group: {
+            _id: "$status",
+            count: { $sum: 1 }
+        }
+    }
+]);
+
+db.purchases.aggregate([
+    {
+        $sort: { order_date: -1 }
+    },
+    {
+        $group: {
+            _id: "$user_id",
+            latest_order: { $first: "$$ROOT" }
+        }
+    },
+    {
+        $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "user_info"
+        }
+    },
+    { $unwind: "$user_info" },
+    {
+        $project: {
+            user_name: "$user_info.name",
+            order_id: "$latest_order.order_id",
+            order_date: "$latest_order.order_date",
+            total_value: "$latest_order.total_value"
+        }
+    }
+]);
+
+db.purchases.aggregate([
+    {
+        $sort: { total_value: -1 }
+    },
+    {
+        $group: {
+            _id: "$user_id",
+            top_order: { $first: "$$ROOT" }
+        }
+    },
+    {
+        $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "user_info"
+        }
+    },
+    { $unwind: "$user_info" },
+    {
+        $project: {
+            user_name: "$user_info.name",
+            total_value: "$top_order.total_value"
+        }
+    }
+]);
